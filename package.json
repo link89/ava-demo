@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/link89/ava-demo#readme",
   "dependencies": {
+    "@types/puppeteer-core": "^2.0.0",
     "ava": "^3.8.2",
+    "devtools": "^6.1.11",
+    "puppeteer-core": "^3.1.0",
     "ts-node": "^8.10.1",
     "typescript": "^3.9.3",
     "webdriverio": "^6.1.12"
