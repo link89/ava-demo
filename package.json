@@ -19,6 +19,7 @@
   "dependencies": {
     "ava": "^3.8.2",
     "ts-node": "^8.10.1",
+    "typescript": "^3.9.3",
     "webdriverio": "^6.1.12"
   }
 }
