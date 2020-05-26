@@ -18,6 +18,7 @@
   "homepage": "https://github.com/link89/ava-demo#readme",
   "dependencies": {
     "ava": "^3.8.2",
+    "ts-node": "^8.10.1",
     "webdriverio": "^6.1.12"
   }
 }
