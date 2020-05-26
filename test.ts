@@ -23,5 +23,6 @@ test('webdriver io cdp demo', async (t) => {
 	const coverage = await pages[0].coverage.stopJSCoverage();
 	console.log(coverage);
 
+  await driver.deleteSession();
 	t.pass();
 });
