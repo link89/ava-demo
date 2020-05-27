@@ -3,7 +3,6 @@ import { BrowserObject, remote } from "webdriverio";
 import * as puppeteer from 'puppeteer-core';
 import * as fs from 'fs';
 import * as bluebird from "bluebird";
-import * as tmp from 'tmp';
 import * as path from 'path';
 import * as https from 'https';
 import axios from 'axios';
@@ -40,10 +39,11 @@ test('webdriver io cdp demo', async (t) => {
 	fs.writeFileSync('v8-coverage.json', JSON.stringify(coverages, null, 2));
 
 	// fetch js source
-	const ws = process.env.WS || tmp.dirSync().name;
-	console.log(`workspace is ${ws}`);
+	const outputFolder = process.env.OUTPUT || 'output';
+	fs.mkdirSync(outputFolder);
+	console.log(`output folder is ${outputFolder}`);
 
-	const sourceDir = path.join(ws, 'sources');
+	const sourceDir = path.join(outputFolder, 'sources');
 	fs.mkdirSync(sourceDir);
 	const coveragesWithSource = await bluebird.map(coverages.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
 		// download source file
@@ -62,7 +62,7 @@ test('webdriver io cdp demo', async (t) => {
 
 	// convert v8 coverage to istanbul
 	// FIXME: v8-to-istanbul: source-mappings from one to many files not yet supported
-	const istanbulDir =  path.join(ws, 'istanbul');
+	const istanbulDir =  path.join(outputFolder, 'istanbul');
 	fs.mkdirSync(istanbulDir);
 	await bluebird.map(coveragesWithSource, async (obj) => {
 		const converter = v8ToIstanbul(obj.scriptPath);

@@ -76,4 +76,6 @@ typings/
 .vscode/
 
 package-lock.json
-os-native/env
+v8-coverage.json
+output/
+
