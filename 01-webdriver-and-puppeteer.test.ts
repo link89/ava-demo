@@ -3,6 +3,11 @@ import { BrowserObject, remote } from "webdriverio";
 import * as puppeteer from 'puppeteer-core';
 import * as fs from 'fs';
 import * as bluebird from "bluebird";
+import * as tmp from 'tmp';
+import * as path from 'path';
+import * as https from 'https';
+
+import axios from 'axios';
 
 
 test('webdriver io cdp demo', async (t) => {
@@ -30,10 +35,22 @@ test('webdriver io cdp demo', async (t) => {
 	console.log(`get title via puppeteer: ${await pages[0].title()}`);
 
 	// puppeteer: stop coverage collection
-	// TODO: handle remap
-	const coverage = await pages[0].coverage.stopJSCoverage();
-	fs.writeFileSync('v8-coverage.json', JSON.stringify(coverage, null, 2));
+	const coverages: any[] = await pages[0].coverage.stopJSCoverage();  // patched
+	fs.writeFileSync('v8-coverage.json', JSON.stringify(coverages, null, 2));
 
+	// fetch js source
+	const sourceDir = tmp.dirSync().name;
+	console.log(`source dir is ${sourceDir}`);
+
+	const coveragesWithSource = await bluebird.map(coverages.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
+		const res = await axios.get(script.url, { httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
+		const sourceFile = path.join(sourceDir, `${script.scriptId}.js`)
+		fs.writeFileSync(sourceFile, res.data);
+		return { script, sourceFile };
+	}, { concurrency: 2, });
+
+	// TODO: convert v8 coverage to istanbul
+	// TODO: handle source map
 
 	// clean up
 	await driver.deleteSession();
