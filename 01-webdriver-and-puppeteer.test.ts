@@ -57,7 +57,7 @@ test('webdriver io cdp demo', async (t) => {
     const sourceMapPath = path.join(sourceDir, sourceMapFile);
     fs.writeFileSync(sourceMapPath, res1.data);
 
-    return { script, scriptPath, sourceMapPath };
+    return {sourceFile, script, scriptPath, sourceMapPath };
   }, { concurrency: 2, });
 
   // convert v8 coverage to istanbul
@@ -69,8 +69,8 @@ test('webdriver io cdp demo', async (t) => {
     await converter.load();
     converter.applyCoverage(obj.script.functions);
     const coverage = converter.toIstanbul();
-    const coveragePath = path.join(istanbulDir, obj.script.scriptId);
-    fs.writeFileSync(`${coveragePath}.json`, JSON.stringify(coverage, null, 2));
+    const coveragePath = path.join(istanbulDir, `${obj.sourceFile}.json`);
+    fs.writeFileSync(coveragePath, JSON.stringify(coverage, null, 2));
   });
 
   // clean up
