@@ -22,6 +22,7 @@ test('webdriver io cdp demo', async (t) => {
 	});
 
 	// connect with puppeteer
+	// TODO: puppeteer is not required, anything can communicate with cdp can work
 	const debugAddress = driver.capabilities['goog:chromeOptions']?.debuggerAddress;
 	const puppeteerDriver = await puppeteer.connect({ browserURL: `http://${debugAddress}` });
 
