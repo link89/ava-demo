@@ -16,7 +16,7 @@ test('webdriver io cdp demo', async (t) => {
 
 	// connect with puppeteer
 	const debugAddress = driver.capabilities['goog:chromeOptions']?.debuggerAddress;
-	const puppeteerDriver = await puppeteer.connect({browserURL: `http://${debugAddress}`});
+	const puppeteerDriver = await puppeteer.connect({ browserURL: `http://${debugAddress}` });
 
 	// puppeteer: start to collect js coverage
 	const pages = await puppeteerDriver.pages();
@@ -24,13 +24,13 @@ test('webdriver io cdp demo', async (t) => {
 
 	// do something with webdriver.io or puppeteer
 	await driver.url('https://baidu.com');
-  console.log(`get title via puppeteer: ${await pages[0].title()}`);
+	console.log(`get title via puppeteer: ${await pages[0].title()}`);
 
 	// puppeteer: stop coverage collection
 	const coverage = await pages[0].coverage.stopJSCoverage();
 	console.log(coverage);
 
 	// clean up
-  await driver.deleteSession();
+	await driver.deleteSession();
 	t.pass();
 });
