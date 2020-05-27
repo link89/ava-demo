@@ -6,9 +6,9 @@ import * as bluebird from "bluebird";
 import * as tmp from 'tmp';
 import * as path from 'path';
 import * as https from 'https';
-
 import axios from 'axios';
 
+const v8ToIstanbul = require('v8-to-istanbul');  // FIXME
 
 test('webdriver io cdp demo', async (t) => {
 	// start webdriver
@@ -43,14 +43,26 @@ test('webdriver io cdp demo', async (t) => {
 	console.log(`source dir is ${sourceDir}`);
 
 	const coveragesWithSource = await bluebird.map(coverages.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
+		// download source file
 		const res = await axios.get(script.url, { httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-		const sourceFile = path.join(sourceDir, `${script.scriptId}.js`)
-		fs.writeFileSync(sourceFile, res.data);
-		return { script, sourceFile };
+		const scriptPath = path.join(sourceDir, `${script.scriptId}.js`)
+		fs.writeFileSync(scriptPath, res.data);
+		// download source map file
+		const sourceMapFile = res.data.match(/sourceMappingURL=(.+\.map)/)[1];
+		const res1 = await axios.get(`${script.url}.map`, { transformResponse: [], httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
+		const sourceMapPath = path.join(sourceDir, sourceMapFile);
+		fs.writeFileSync(sourceMapPath, res1.data);
+
+		return { script, scriptPath};
 	}, { concurrency: 2, });
 
-	// TODO: convert v8 coverage to istanbul
-	// TODO: handle source map
+	// convert v8 coverage to istanbul
+	await bluebird.map(coveragesWithSource, async (obj) => {
+		const converter = v8ToIstanbul(obj.scriptPath);
+		await converter.load();
+		const data = converter.applyCoverage(obj.script.functions);
+		console.log(data);
+	});
 
 	// clean up
 	await driver.deleteSession();
