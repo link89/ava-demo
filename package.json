@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/link89/ava-demo#readme",
   "dependencies": {
+    "@types/bluebird": "^3.5.32",
     "@types/puppeteer-core": "^2.0.0",
     "ava": "^3.8.2",
+    "bluebird": "^3.7.2",
     "devtools": "^6.1.11",
     "puppeteer-core": "^3.1.0",
     "ts-node": "^8.10.1",
