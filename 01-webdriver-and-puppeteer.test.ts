@@ -57,10 +57,12 @@ test('webdriver io cdp demo', async (t) => {
 	}, { concurrency: 2, });
 
 	// convert v8 coverage to istanbul
+	// FIXME: v8-to-istanbul: source-mappings from one to many files not yet supported
 	await bluebird.map(coveragesWithSource, async (obj) => {
 		const converter = v8ToIstanbul(obj.scriptPath);
 		await converter.load();
-		const data = converter.applyCoverage(obj.script.functions);
+		converter.applyCoverage(obj.script.functions);
+		const data = converter.toIstanbul();
 		console.log(data);
 	});
 
