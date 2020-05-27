@@ -53,7 +53,7 @@ test('webdriver io cdp demo', async (t) => {
 		const sourceMapPath = path.join(sourceDir, sourceMapFile);
 		fs.writeFileSync(sourceMapPath, res1.data);
 
-		return { script, scriptPath};
+		return { script, scriptPath, sourceMapPath};
 	}, { concurrency: 2, });
 
 	// convert v8 coverage to istanbul
