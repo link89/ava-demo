@@ -40,16 +40,19 @@ test('webdriver io cdp demo', async (t) => {
 	fs.writeFileSync('v8-coverage.json', JSON.stringify(coverages, null, 2));
 
 	// fetch js source
-	const sourceDir = tmp.dirSync().name;
-	console.log(`source dir is ${sourceDir}`);
+	const ws = process.env.WS || tmp.dirSync().name;
+	console.log(`workspace is ${ws}`);
 
+	const sourceDir = path.join(ws, 'sources');
+	fs.mkdirSync(sourceDir);
 	const coveragesWithSource = await bluebird.map(coverages.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
 		// download source file
 		const res = await axios.get(script.url, { httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-		const scriptPath = path.join(sourceDir, `${script.scriptId}.js`)
+		const sourceMapFile = res.data.match(/sourceMappingURL=(.+\.map)/)[1];
+		const sourceFile = sourceMapFile.replace(/\.map$/, '');
+		const scriptPath = path.join(sourceDir, sourceFile);
 		fs.writeFileSync(scriptPath, res.data);
 		// download source map file
-		const sourceMapFile = res.data.match(/sourceMappingURL=(.+\.map)/)[1];
 		const res1 = await axios.get(`${script.url}.map`, { transformResponse: [], httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
 		const sourceMapPath = path.join(sourceDir, sourceMapFile);
 		fs.writeFileSync(sourceMapPath, res1.data);
@@ -59,12 +62,15 @@ test('webdriver io cdp demo', async (t) => {
 
 	// convert v8 coverage to istanbul
 	// FIXME: v8-to-istanbul: source-mappings from one to many files not yet supported
+	const istanbulDir =  path.join(ws, 'istanbul');
+	fs.mkdirSync(istanbulDir);
 	await bluebird.map(coveragesWithSource, async (obj) => {
 		const converter = v8ToIstanbul(obj.scriptPath);
 		await converter.load();
 		converter.applyCoverage(obj.script.functions);
-		const data = converter.toIstanbul();
-		console.log(data);
+		const coverage = converter.toIstanbul();
+		const coveragePath = path.join(istanbulDir, obj.script.scriptId);
+		fs.writeFileSync(`${coveragePath}.json`, JSON.stringify(coverage, null, 2));
 	});
 
 	// clean up
