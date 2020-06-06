@@ -3,11 +3,7 @@ import { BrowserObject, remote } from "webdriverio";
 import * as puppeteer from 'puppeteer-core';
 import * as fs from 'fs';
 import * as bluebird from "bluebird";
-import * as path from 'path';
-import * as https from 'https';
-import axios from 'axios';
 
-const v8ToIstanbul = require('v8-to-istanbul');  // FIXME
 
 test('webdriver io cdp demo', async (t) => {
   // start webdriver
@@ -38,40 +34,6 @@ test('webdriver io cdp demo', async (t) => {
   const coverages: any[] = await pages[0].coverage.stopJSCoverage();  // patched
   fs.writeFileSync('v8-coverage.json', JSON.stringify(coverages, null, 2));
 
-  // fetch js source
-  const outputFolder = process.env.OUTPUT || 'output';
-  fs.mkdirSync(outputFolder);
-  console.log(`output folder is ${outputFolder}`);
-
-  const sourceDir = path.join(outputFolder, 'sources');
-  fs.mkdirSync(sourceDir);
-  const coveragesWithSource = await bluebird.map(coverages.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
-    // download source file
-    const res = await axios.get(script.url, { httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-    const sourceMapFile = res.data.match(/sourceMappingURL=(.+\.map)/)[1];
-    const sourceFile = sourceMapFile.replace(/\.map$/, '');
-    const scriptPath = path.join(sourceDir, sourceFile);
-    fs.writeFileSync(scriptPath, res.data);
-    // download source map file
-    const res1 = await axios.get(`${script.url}.map`, { transformResponse: [], httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-    const sourceMapPath = path.join(sourceDir, sourceMapFile);
-    fs.writeFileSync(sourceMapPath, res1.data);
-
-    return {sourceFile, script, scriptPath, sourceMapPath };
-  }, { concurrency: 2, });
-
-  // convert v8 coverage to istanbul
-  // FIXME: v8-to-istanbul: source-mappings from one to many files not yet supported
-  const istanbulDir = path.join(outputFolder, 'istanbul');
-  fs.mkdirSync(istanbulDir);
-  await bluebird.map(coveragesWithSource, async (obj) => {
-    const converter = v8ToIstanbul(obj.scriptPath);
-    await converter.load();
-    converter.applyCoverage(obj.script.functions);
-    const coverage = converter.toIstanbul();
-    const coveragePath = path.join(istanbulDir, `${obj.sourceFile}.json`);
-    fs.writeFileSync(coveragePath, JSON.stringify(coverage, null, 2));
-  });
 
   // clean up
   await driver.deleteSession();
