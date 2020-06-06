@@ -55,10 +55,22 @@ async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: s
   // FIXME: v8-to-istanbul: source-mappings from one to many files not yet supported
 }
 
+function usage(message: string) {
+  return message + '\n' + 'usage: to-istanbul /path/to/cache v8-coverage-file'
+}
 
 const CACHE_PATH = process.argv[2];
-const V8_COV_FILE = process.argv[3];
+const OUTPUT_PATH = process.argv[3];
+const V8_COV_FILE = process.argv[4];
 
-const usage = 'to-istanbul /path/to/cache v8-coverage-file'
-assert(CACHE_PATH, usage);
-assert(fs.existsSync(V8_COV_FILE), usage);
+assert(CACHE_PATH, usage('cache path is missing!'));
+assert(OUTPUT_PATH, usage('output path is missing!'));
+assert(fs.existsSync(V8_COV_FILE), usage('v8 coverage file is missing!'));
+
+(async () => {
+    try {
+        await toIstanbulCov(CACHE_PATH, OUTPUT_PATH, V8_COV_FILE);
+    } catch (err) {
+        console.error(err);
+    }
+})();
