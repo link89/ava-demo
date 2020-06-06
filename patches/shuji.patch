@@ -1,0 +1,13 @@
+diff --git a/node_modules/shuji/lib/read-sources.js b/node_modules/shuji/lib/read-sources.js
+index 268462a..6a54041 100644
+--- a/node_modules/shuji/lib/read-sources.js
++++ b/node_modules/shuji/lib/read-sources.js
+@@ -38,7 +38,7 @@ const readSources = async (input, options) => {
+       console.log('source', source);
+       console.log('path.basename(source)', path.basename(source));
+ 
+-      map[path.basename(source)] = contents;
++      map[source] = contents;
+     });
+   }
+   else if (options.verbose) {
