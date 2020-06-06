@@ -14,11 +14,17 @@ Execute the example
 
 `npx ava --timeout=2m 01-webdriver-and-puppeteer.test.ts`
 
-The v8-format coverage data will be in `v8-coverage.json`, convert it to istanbul format via following command.
+The v8-format coverage data will be in `v8-coverage.json`, convert it to istanbul-format via following command.
 
 `npx ts-node bin/to-istanbul-cov.ts cache output v8-coverage.json`
 
-You will get istanbul-format coverage data under `output` folder. Now you can generate html format report by following command
+You will get istanbul-format coverage data under `output` folder.
+
+Before generate coverage, you may need to restore the source code via source map data.
+
+`npx shuji cache/sources`
+
+Now you can generate html format report by following command
 
 `npx nyc report -t output --reporter html --report-dir output-html`
 
