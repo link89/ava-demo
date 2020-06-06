@@ -6,6 +6,8 @@ import * as https from 'https';
 import axios from 'axios';
 
 const v8ToIstanbul = require('v8-to-istanbul');  // FIXME
+const createSourceMapStore = require('istanbul-lib-source-maps').createSourceMapStore;
+console.log(createSourceMapStore);
 
 interface V8Coverage {
   url: string;
@@ -23,22 +25,20 @@ async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: s
 
   // download .js & .js.map
   const sourcesPath = path.join(cachePath, 'sources');  // folder to store .js & .js.map files
-  fs.mkdirSync(sourcesPath);
-
+  fs.mkdirSync(sourcesPath, { recursive: true });
   const covWithSources = await bluebird.map(
     v8Covs.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
       // download source file
       const sourceFilePath = path.join(sourcesPath, pathFromUrl(script.url));
-      fs.mkdirSync(path.dirname(sourceFilePath), { recursive: true });
-      let res = await axios.get(script.url, { httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-      const sourceMapFileName = res.data.match(/sourceMappingURL=(.+\.map)/)[1];
-      const sourceMapFilePath = path.join(path.dirname(sourceFilePath), sourceMapFileName);
-      fs.writeFileSync(sourceFilePath, res.data);
-
-      // download source map file
-      res = await axios.get(`${script.url}.map`, { transformResponse: [], httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
-      fs.writeFileSync(sourceMapFilePath, res.data);
-
+      let sourceMapFilePath: string;
+      if (!fs.existsSync(sourceFilePath)) {
+        fs.mkdirSync(path.dirname(sourceFilePath), { recursive: true });
+        let res = await axios.get(script.url, { httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
+        sourceMapFilePath = sourceFilePath + '.map';
+        fs.writeFileSync(sourceFilePath, res.data);
+        res = await axios.get(script.url + '.map', { transformResponse: [], httpsAgent: new https.Agent({ rejectUnauthorized: false }) });
+        fs.writeFileSync(sourceMapFilePath, res.data);
+      }
       return { script, sourceFilePath, sourceMapFilePath };
     }, { concurrency: 4, });
 
