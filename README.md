@@ -1,25 +1,27 @@
 # ava-demo
 
-## 01. webdriver.io and puppeteer
+## 01. code coverage collection and transform
 
 ### Summary
-Integrate with webdriver.io and collect coverage data with puppeteer.
+This case is about
+* how to collect code coverage data on a `selenium` based test automation project via `cdp`
+* how to covert v8-format coverage data to istanbul-format
 
 ### Run demo
-Install `selenium-standalone` and start a selenium server with it.
+This demo depends on `selenium`. You can install `selenium-standalone` and start a selenium server with it before you execute the example.
 
-Then execute
+Execute the example
 
 `npx ava --timeout=2m 01-webdriver-and-puppeteer.test.ts`
 
-The coverage report will be in `output/istanbul`, merge with following command:
+The v8-format coverage data will be in `v8-coverage.json`, convert it to istanbul format via following command.
 
-`npx nyc merge output/istanbul output/merge/coverage.json`
+`npx ts-node bin/to-istanbul-cov.ts cache output v8-coverage.json`
 
-The remap source-map by
+You will get istanbul-format coverage data under `output` folder. Now you can generate html format report by following command
 
-` npx remap-istanbul -i coverage-merged.json -o output/final/coverage.json`
+`npx nyc report -t output --reporter html --report-dir output-html`
 
-Generate report by
+You can start a http server to view the report in browser
 
-` npx nyc report -t output/final --reporter html --report-dir output-html`
+`npx http-server output-html`
