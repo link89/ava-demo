@@ -46,7 +46,6 @@ async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: s
   const mapStore = createSourceMapStore();
 
   await bluebird.map(covWithSources, async (obj) => {
-    console.log(obj.sourceFilePath);
     const converter = v8ToIstanbul(obj.sourceFilePath);
     await converter.load();
     converter.applyCoverage(obj.script.functions);
