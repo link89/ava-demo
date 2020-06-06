@@ -23,6 +23,7 @@
     "axios": "^0.19.2",
     "bluebird": "^3.7.2",
     "devtools": "^6.1.11",
+    "istanbul-lib-source-maps": "^4.0.0",
     "nyc": "^15.0.1",
     "puppeteer-core": "^3.1.0",
     "ts-node": "^8.10.1",

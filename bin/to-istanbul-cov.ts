@@ -18,16 +18,15 @@ function pathFromUrl(url: string) {
 }
 
 async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: string) {
+  const v8Covs: V8Coverage[] = require(path.resolve(v8CovFile));  // load data
   if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
 
+  // download .js & .js.map
   const sourcesPath = path.join(cachePath, 'sources');  // folder to store .js & .js.map files
   fs.mkdirSync(sourcesPath);
 
-  const v8Coverages: V8Coverage[] = require(path.resolve(v8CovFile));  // load data
-
-  // download .js & .js.map
   const covWithSources = await bluebird.map(
-    v8Coverages.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
+    v8Covs.filter(script => script.url.startsWith('http') && script.url.endsWith('.js')), async (script) => {
       // download source file
       const sourceFilePath = path.join(sourcesPath, pathFromUrl(script.url));
       fs.mkdirSync(path.dirname(sourceFilePath), { recursive: true });
@@ -50,8 +49,8 @@ async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: s
     const converter = v8ToIstanbul(obj.sourceFilePath);
     await converter.load();
     converter.applyCoverage(obj.script.functions);
-    const istanbulCov = converter.toIstanbul();
-  });
+    const cov = converter.toIstanbul();
+  }, { concurrency: 4, });
 
   // FIXME: v8-to-istanbul: source-mappings from one to many files not yet supported
 }
