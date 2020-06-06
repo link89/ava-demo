@@ -27,6 +27,7 @@
     "istanbul-lib-source-maps": "^4.0.0",
     "nyc": "^15.0.1",
     "puppeteer-core": "^3.1.0",
+    "shuji": "^0.6.1",
     "ts-node": "^8.10.1",
     "typescript": "^3.9.3",
     "v8-to-istanbul": "^4.1.4",
