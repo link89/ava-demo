@@ -7,7 +7,6 @@ import axios from 'axios';
 
 const v8ToIstanbul = require('v8-to-istanbul');  // FIXME
 const createSourceMapStore = require('istanbul-lib-source-maps').createSourceMapStore;
-console.log(createSourceMapStore);
 
 interface V8Coverage {
   url: string;
@@ -44,8 +43,10 @@ async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: s
 
   // convert v8 coverage to istanbul
   if (!fs.existsSync(outputPath)) fs.mkdirSync(outputPath, { recursive: true });
+  const mapStore = createSourceMapStore();
 
   await bluebird.map(covWithSources, async (obj) => {
+    console.log(obj.sourceFilePath);
     const converter = v8ToIstanbul(obj.sourceFilePath);
     await converter.load();
     converter.applyCoverage(obj.script.functions);
