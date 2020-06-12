@@ -26,7 +26,7 @@ test('webdriver io cdp demo', async (t) => {
   await pages[0].coverage.startJSCoverage({ resetOnNavigation: false });
 
   // do something with webdriver.io or puppeteer
-  await driver.url('https://jupiter.fiji.gliprc.com');
+  await driver.url('https://react-redux-typescript-realworld-app.netlify.app');
   await bluebird.delay(5e3);
   console.log(`get title via puppeteer: ${await pages[0].title()}`);
 
