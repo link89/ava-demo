@@ -50,6 +50,8 @@ async function toIstanbulCov(cachePath: string, outputPath: string, v8CovFile: s
     await converter.load();
     converter.applyCoverage(obj.script.functions);
     const cov = converter.toIstanbul();
+    const rawIstanbulFilePath = path.join(outputPath, `${i}.raw.json`);
+    fs.writeFileSync(rawIstanbulFilePath, JSON.stringify(cov, null, 2));
     const covMap = libCoverage.createCoverageMap(cov);
     const transformed = await mapStore.transformCoverage(covMap);
     const istanbulFilePath = path.join(outputPath, `${i}.json`);
