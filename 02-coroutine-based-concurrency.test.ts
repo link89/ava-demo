@@ -24,7 +24,7 @@ class Semaphore {
 
   async wait() {
     while (this.size - 1 < 0)  {
-      await new Promise((resolve) => this.ee.on(SIGNAL_EVT, resolve));
+      await new Promise((resolve) => this.ee.once(SIGNAL_EVT, resolve));
     }
     this.size -= 1;
   }
