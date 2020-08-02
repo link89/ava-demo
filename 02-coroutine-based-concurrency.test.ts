@@ -15,23 +15,22 @@ import test from 'ava';
 const SIGNAL_EVT = Symbol();
 class Semaphore {
 
-  ee: EventEmitter;
+  queue: Function[] = [];
 
   constructor(private size: number) {
-    this.ee = new EventEmitter();
-    this.ee.setMaxListeners(1e3);
   }
 
   async wait() {
     while (this.size - 1 < 0)  {
-      await new Promise((resolve) => this.ee.once(SIGNAL_EVT, resolve));
+      await new Promise((resolve) => this.queue.push(resolve));
     }
     this.size -= 1;
   }
 
   signal() {
     this.size += 1;
-    this.ee.emit(SIGNAL_EVT);
+    const resolve = this.queue.shift();
+    if (resolve) resolve();
   }
 }
 
