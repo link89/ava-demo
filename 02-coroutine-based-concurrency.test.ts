@@ -8,11 +8,9 @@ For cpu intensive tests process based one is still a good option.
 But for io intensive test (like webdriver based), coroutine based concurrency will be more feasible
 */
 
-import { EventEmitter } from 'events';
 import test from 'ava';
 
 // implement semaphore for concurrency control
-const SIGNAL_EVT = Symbol();
 class Semaphore {
 
   queue: Function[] = [];
